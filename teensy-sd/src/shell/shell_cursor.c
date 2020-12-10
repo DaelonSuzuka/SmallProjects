@@ -85,10 +85,13 @@ void insert_char_at_cursor(shell_line_t *line, char currentChar) {
         return;
     }
 
+    char buf[3];
+
     // process is easier if cursor is already at end of line
     if (line->cursor == line->length) {
         // print the new char
-        printf("%c", currentChar);
+        buf[0] = currentChar;
+        sh_print(buf);
 
         // add the new char to the buffer
         line->buffer[line->cursor] = currentChar;
