@@ -4,8 +4,8 @@
 
 /* ************************************************************************** */
 
-#define OUTPUT_PIN 2
-#define INPUT_PIN 3
+#define OUTPUT_PIN 3
+#define INPUT_PIN 2
 
 /* ************************************************************************** */
 
@@ -52,10 +52,10 @@ void check_comms(char currentChar) {
             } else if (doc.as<JsonObject>().containsKey("command")) {
                 if (doc["command"].as<JsonObject>().containsKey("set_output")) {
                     if (!strcmp(doc["command"]["set_output"], "1")) {
-                        digitalWrite(2, HIGH);
+                        digitalWrite(OUTPUT_PIN, HIGH);
                         Serial.write("{\"update\":{\"output\":\"1\"}}");
                     } else if (!strcmp(doc["command"]["set_output"], "0")) {
-                        digitalWrite(2, LOW);
+                        digitalWrite(OUTPUT_PIN, LOW);
                         Serial.write("{\"update\":{\"output\":\"0\"}}");
                     }
                 }
