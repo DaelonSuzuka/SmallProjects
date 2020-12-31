@@ -47,6 +47,7 @@ void shell_arg_test(int argc, char **argv) {
 
 void shell_version(int argc, char **argv) {
     sh_println("");
+    sh_println("Project: teensy-sd Board: Teensy 3.5");
     printf("Chitin v%s", SHELL_VERSION);
     sh_println("");
     printf("Compiled on %s at %s", __DATE__, __TIME__);

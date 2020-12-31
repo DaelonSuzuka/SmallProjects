@@ -81,7 +81,7 @@ void process_escape_sequence(sh_key_t key) {
     case BACKSPACE: // delete one character to the left of the cursor
         if (shell.cursor != 0) {
             move_cursor_left(&shell);
-            remove_char_at_cursor(&shell);
+            // remove_char_at_cursor(&shell);
         }
         return;
     case ENTER:
