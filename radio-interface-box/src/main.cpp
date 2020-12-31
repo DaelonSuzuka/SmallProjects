@@ -81,9 +81,9 @@ void check_buttons(void) {
     if (currentState != prevState) {
 
         if (currentState) {
-            Serial.write("{\"update\":{\"input\":\"1\"}}");
+            Serial.write("{\"update\":{\"input\":\"high\"}}");
         } else {
-            Serial.write("{\"update\":{\"input\":\"0\"}}");
+            Serial.write("{\"update\":{\"input\":\"low\"}}");
         }
     }
     prevState = currentState;
