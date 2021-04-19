@@ -1,44 +1,13 @@
-#include "judiduino.hpp"
+#include "judi.hpp"
 
 /* ************************************************************************** */
 
-struct {
-    char data[256];
-    uint8_t length;
-    uint8_t depth;
-} buffer;
-
-void insert_character(char currentChar) {
-    if (currentChar == '{') {
-        buffer.depth++;
-    }
-    if (buffer.depth > 0) {
-        buffer.data[buffer.length++] = currentChar;
-    }
-    if (currentChar == '}') {
-        buffer.depth--;
-    }
-}
-
-StaticJsonDocument<200> doc;
-// {"request":"device_info"}
+JUDI judi("judipedals", "6969696969");
 
 void check_comms(char currentChar) {
-    if (currentChar != 0) {
-        insert_character(currentChar);
-        if (buffer.length > 0 && buffer.depth == 0) {
-            buffer.data[buffer.length] = 0;
-            deserializeJson(doc, buffer.data);
-
-            if (doc.as<JsonObject>().containsKey("request")) {
-                if (!strcmp(doc["request"], "device_info")) {
-                    Serial.write(
-                        "{\"update\":{\"device_info\":{\"product_name\":"
-                        "\"judipedals\",\"serial_number\":\"6969696969\"}}}");
-                }
-            }
-
-            memset(&buffer, 0, sizeof(buffer));
+    if (judi.update(currentChar)) {
+        if (judi["request"] == "device_info") {
+            serializeJson(judi.device_info, Serial);
         }
     }
 }
@@ -49,19 +18,26 @@ void check_comms(char currentChar) {
 const int pinToButtonOffset = 2;
 int prevState[NUMBER_OF_BUTTONS] = {0, 0, 0, 0};
 
-const char *buttonPressedMsg[NUMBER_OF_BUTTONS] = {
-    "{\"update\":{\"button_pressed\":\"1\"}}",
-    "{\"update\":{\"button_pressed\":\"2\"}}",
-    "{\"update\":{\"button_pressed\":\"3\"}}",
-    "{\"update\":{\"button_pressed\":\"4\"}}",
+String buttonPressedMsg[NUMBER_OF_BUTTONS] = {
+    "{'update':{'button_pressed':'1'}}",
+    "{'update':{'button_pressed':'2'}}",
+    "{'update':{'button_pressed':'3'}}",
+    "{'update':{'button_pressed':'4'}}",
 };
 
-const char *buttonReleasedMsg[NUMBER_OF_BUTTONS] = {
-    "{\"update\":{\"button_released\":\"1\"}}",
-    "{\"update\":{\"button_released\":\"2\"}}",
-    "{\"update\":{\"button_released\":\"3\"}}",
-    "{\"update\":{\"button_released\":\"4\"}}",
+String buttonReleasedMsg[NUMBER_OF_BUTTONS] = {
+    "{'update':{'button_released':'1'}}",
+    "{'update':{'button_released':'2'}}",
+    "{'update':{'button_released':'3'}}",
+    "{'update':{'button_released':'4'}}",
 };
+
+void fix_strings(void) {
+    for (int i = 0; i < NUMBER_OF_BUTTONS; i++) {
+        buttonPressedMsg[i].replace("'", "\"");
+        buttonReleasedMsg[i].replace("'", "\"");
+    }
+}
 
 void check_buttons(void) {
     static unsigned long lastCheckTime = 0;
@@ -75,9 +51,9 @@ void check_buttons(void) {
         if (currentState != prevState[i]) {
             prevState[i] = currentState;
             if (currentState) {
-                Serial.write(buttonPressedMsg[i]);
+                Serial.print(buttonPressedMsg[i]);
             } else {
-                Serial.write(buttonReleasedMsg[i]);
+                Serial.print(buttonReleasedMsg[i]);
             }
         }
     }
@@ -86,13 +62,11 @@ void check_buttons(void) {
 /* ************************************************************************** */
 
 void setup() {
-    Serial.begin(9600);
+    Serial.begin(115200);
     while (!Serial)
         continue;
 
-    judi_init();
-
-    memset(&buffer, 0, sizeof(buffer));
+    fix_strings();
 
     // Initialize Button Pins
     pinMode(2, INPUT_PULLUP);
