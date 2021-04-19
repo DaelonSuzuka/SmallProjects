@@ -9,6 +9,7 @@ void check_comms(char currentChar) {
         if (judi["request"] == "device_info") {
             serializeJson(judi.device_info, Serial);
         }
+        judi.reset();
     }
 }
 
@@ -62,7 +63,7 @@ void check_buttons(void) {
 /* ************************************************************************** */
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(9600);
     while (!Serial)
         continue;
 

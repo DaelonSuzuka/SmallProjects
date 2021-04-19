@@ -58,6 +58,7 @@ class JUDI {
     JUDI(String name, String serial_number);
 
     bool update(char c);
+    void reset(void);
 
     bool contains(String string);
     String operator[](String string);
@@ -76,10 +77,13 @@ bool JUDI::update(char c) {
         buffer.terminate();
         deserializeJson(document, buffer.data);
         message = document.as<JsonObject>();
-        buffer.reset();
         return true;
     }
     return false;
+}
+
+void JUDI::reset(void) {
+    buffer.reset(); //
 }
 
 bool JUDI::contains(String string) {
