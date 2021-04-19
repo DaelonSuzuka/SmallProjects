@@ -1,4 +1,4 @@
-#include <ArduinoJson.h>
+#include "judiduino.hpp"
 
 /* ************************************************************************** */
 
@@ -89,6 +89,8 @@ void setup() {
     Serial.begin(9600);
     while (!Serial)
         continue;
+
+    judi_init();
 
     memset(&buffer, 0, sizeof(buffer));
 
