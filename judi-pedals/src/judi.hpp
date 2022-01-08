@@ -52,7 +52,7 @@ class JUDI {
   public:
     JudiBuffer buffer;
     StaticJsonDocument<200> document;
-    StaticJsonDocument<50> device_info;
+    StaticJsonDocument<200> device_info;
     JsonObject message;
 
     JUDI(String name, String serial_number);
