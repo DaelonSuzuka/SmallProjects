@@ -43,7 +43,7 @@ String valueChangedMsg[NUMBER_OF_CHANNELS] = {
     "{'update':{'value_changed':{'channel':'1', 'value':",
 };
 
-String msgTail = "\"}}}";
+String msgTail = "}}}";
 
 void send_update(void) {
     for (int i = 0; i < NUMBER_OF_CHANNELS; i++) {
