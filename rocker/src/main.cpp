@@ -50,7 +50,7 @@ void send_update(void) {
         if (abs(values[i] - lastUpdate[i]) > UPDATE_THRESHOLD) {
             Serial.print(valueChangedMsg[i]);
             Serial.print(values[i]);
-            Serial.println(msgTail);
+            Serial.print(msgTail);
             lastUpdate[i] = values[i];
         }
     }
