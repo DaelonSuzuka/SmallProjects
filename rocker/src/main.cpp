@@ -45,13 +45,25 @@ String valueChangedMsg[NUMBER_OF_CHANNELS] = {
 
 String msgTail = "}}}";
 
-void send_update(void) {
+void send_update(int channel) {
+    Serial.print(valueChangedMsg[channel]);
+    Serial.print(values[channel]);
+    Serial.print(msgTail);
+    lastUpdate[channel] = values[channel];
+}
+
+#define RATE_LIMIT 20
+
+void attempt_update(void) {
+    static unsigned long lastCheckTime = 0;
+    if (millis() - lastCheckTime < 10) {
+        return;
+    }
+    lastCheckTime = millis();
+
     for (int i = 0; i < NUMBER_OF_CHANNELS; i++) {
         if (abs(values[i] - lastUpdate[i]) > UPDATE_THRESHOLD) {
-            Serial.print(valueChangedMsg[i]);
-            Serial.print(values[i]);
-            Serial.print(msgTail);
-            lastUpdate[i] = values[i];
+            send_update(i);
         }
     }
 }
@@ -82,5 +94,5 @@ void loop() {
     }
 
     check_inputs();
-    send_update();
+    attempt_update();
 }
