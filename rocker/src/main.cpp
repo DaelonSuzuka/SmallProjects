@@ -1,10 +1,13 @@
-#include <Arduino.h>
 #include "judi.hpp"
+#include <Arduino.h>
 
 /* ************************************************************************** */
 
-#define OUTPUT_PIN 3
-#define INPUT_PIN A6
+#define OUTPUT0_PIN 8
+#define OUTPUT1_PIN 9
+
+#define INPUT0_PIN A1
+#define INPUT1_PIN A2
 
 /* ************************************************************************** */
 
@@ -25,38 +28,50 @@ void check_comms(char currentChar) {
 
 /* -------------------------------------------------------------------------- */
 
-int value = 0;
+#define NUMBER_OF_CHANNELS 2
+#define UPDATE_THRESHOLD 10
+int values[NUMBER_OF_CHANNELS] = {0, 0};
+int lastUpdate[NUMBER_OF_CHANNELS] = {0, 0};
 
-void check_buttons(void) {
-    // static unsigned long lastCheckTime = 0;
-    // if (millis() - lastCheckTime < 20) {
-    //     return;
-    // }
-    // lastCheckTime = millis();
-    
-    value = ((value * 7) + analogRead(INPUT_PIN)) / 8;
+void check_inputs(void) {
+    values[0] = ((values[0] * 7) + analogRead(INPUT0_PIN)) / 8;
+    values[1] = ((values[1] * 7) + analogRead(INPUT1_PIN)) / 8;
 }
 
-void report_value(void) {
-    static unsigned long lastCheckTime = 0;
-    if (millis() - lastCheckTime < 1000) {
-        return;
-    }
-    lastCheckTime = millis();
+String valueChangedMsg[NUMBER_OF_CHANNELS] = {
+    "{'update':{'value_changed':{'channel':'0', 'value':",
+    "{'update':{'value_changed':{'channel':'1', 'value':",
+};
 
-    Serial.println(value);
+String msgTail = "\"}}}";
+
+void send_update(void) {
+    for (int i = 0; i < NUMBER_OF_CHANNELS; i++) {
+        if (abs(values[i] - lastUpdate[i]) > UPDATE_THRESHOLD) {
+            Serial.print(valueChangedMsg[i]);
+            Serial.print(values[i]);
+            Serial.println(msgTail);
+            lastUpdate[i] = values[i];
+        }
+    }
 }
 
 /* ************************************************************************** */
 
 void setup() {
-    pinMode(OUTPUT_PIN, OUTPUT);
-    digitalWrite(OUTPUT_PIN, HIGH);
+    pinMode(OUTPUT0_PIN, OUTPUT);
+    digitalWrite(OUTPUT0_PIN, HIGH);
+    pinMode(OUTPUT1_PIN, OUTPUT);
+    digitalWrite(OUTPUT1_PIN, HIGH);
 
-    pinMode(INPUT_PIN, INPUT);
+    pinMode(INPUT0_PIN, INPUT);
+    pinMode(INPUT1_PIN, INPUT);
 
     // fix string quotes
     device_info.replace("'", "\"");
+    for (int i = 0; i < NUMBER_OF_CHANNELS; i++) {
+        valueChangedMsg[i].replace("'", "\"");
+    }
 
     Serial.begin(9600);
 }
@@ -66,6 +81,6 @@ void loop() {
         check_comms(Serial.read());
     }
 
-    check_buttons();
-    report_value();
+    check_inputs();
+    send_update();
 }
